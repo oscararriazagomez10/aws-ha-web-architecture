@@ -61,13 +61,13 @@ Internal compute perimeter restricting direct acess to web servers.
 
 To prevent anauthorized access, compute nodes do not express Port 80 directly to the public internet:
 
-* The ingress rule for 'ec2-sg' references the logical ID of 'alb-sg' rather than an IP range.
+* The ingress rule for `ec2-sg` references the logical ID of `alb-sg` rather than an IP range.
 * Any request attempting to bypass the Application Load Balancer by calling the EC2 IP directly is dropped at the AWS hypervisor level.
 
 ### High Availability & Fault Tolerance
 
-* **Multi-AZ Deployment** Deploying across 'us-east-1a' and 'us-east-1b' ensures continuos operation if an entire AWS datacenter experiences an outage.
-* **Automated Health Checks** The ALB continuosly probes '/index.html' via HTTP '200 OK' checks. Unhealthy instances are automatically deregistered.
+* **Multi-AZ Deployment** Deploying across `us-east-1a` and `us-east-1b` ensures continuos operation if an entire AWS datacenter experiences an outage.
+* **Automated Health Checks** The ALB continuosly probes `/index.html` via HTTP `200 OK` checks. Unhealthy instances are automatically deregistered.
 * **Self-Healing Infrastructure** The Auto Scaling Group enforces a mininum capacity of 2 nodes. If an instances fails, the ASG terminates it and provisions a replacement node automatically.
 
 ---
@@ -90,15 +90,15 @@ aws-ha-web-architecture/
 
 Compute nodes are dynamically provisioned upon launch using 'scripts/user-data.sh':
 
-1. Updates Linux system packages ('yum update').
-2. Installs and enables the Apache Web Server ('httpd').
+1. Updates Linux system packages ( `yum update`).
+2. Installs and enables the Apache Web Server (`httpd`).
 3. Fetches dynamic metadata via **IMDSv2** (Instance ID and Availability Zone) to server dynamic HTML page for load-balancing verification.
 
 ---
 
 ## Verification & Testing Procedures
 
-* **Load Balancing Test** Refreshing the ALB DNS URL routes traffic sequentially between 'us-east-1a' and 'us-east-1b'.
+* **Load Balancing Test** Refreshing the ALB DNS URL routes traffic sequentially between `us-east-1a` and `us-east-1b`.
 * **Failover Test** Terminating an instances in AWS Console triggers the ASG to launch a fresh replacement without service disruption.
 
 ---
@@ -120,5 +120,8 @@ All compute targets passing HTTP 200 OK health probes:
 ![Target Group Health](docs/target-group-healthy.PNG)
 
 
+## Troubleshooting & Key Learnings
 
+- **502 Bad Gateway / unhealthy Targets** Resolved target group health check failures by verifying VPC route tables to ensure public subnets had an active route (`0.0.0.0/0`) to the Internet Gateway, allowing apache installation during bootstrapping.
+- **IMDSv2 Instance Metadata Retrieval** Configured Launch Template metadata options with 'Hop Limit = 2' and integrated 'amazon-ec2-utils' ('ec2-metadata') in `user-data.sh` to properly extract `Instance-ID` and `AZ` across AL203 nodes.
 
