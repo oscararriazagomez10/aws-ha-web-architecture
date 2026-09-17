@@ -101,3 +101,23 @@ Compute nodes are dynamically provisioned upon launch using 'scripts/user-data.s
 * **Load Balancing Test** Refreshing the ALB DNS URL routes traffic sequentially between 'us-east-1a' and 'us-east-1b'.
 * **Failover Test** Terminating an instances in AWS Console triggers the ASG to launch a fresh replacement without service disruption.
 
+---
+
+## Live Deployment & healthy Verification
+
+### 1. Multi-AZ Load Balancing Verification
+
+Traffic distribution confirmed across multiple Availability Zones via application Load Balancer:
+
+![AZ-A Response](docs/demo-az-a.png)
+![AZ-B Response](docs/demo-az-b.png)
+
+### 2. Target Group Health Status 
+
+All compute targets passing HTTP 200 OK health probes:
+
+![Target Group Health](docs/target-group-healthy.png)
+
+
+
+
