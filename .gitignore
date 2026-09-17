@@ -1,0 +1,23 @@
+# System files
+
+.DS_Store
+Thumbs.db
+
+
+# IDE & Editor folders
+
+.vscode/
+.idea/
+
+# AWS & Security credentials (Never commit keys or secrets)
+
+*.pem
+*.ppk
+*.env
+.aws/
+
+# Logs & temporany files
+
+*.log
+tmp/
+
