@@ -29,3 +29,75 @@ An enterprise-grade, fault-tolerant, adn dynamic web infrastructure deployed on 
 ---
 
 
+## Security Group Rules & Network Isolation
+
+### 1. ALB Security Group 
+
+Public-facing perimeter security boundary protecting the Application Load Balancer
+
+
+| Traffic Direction | Protocol | Port Range | Source / Destination | Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| **Inbound** | TCP | `80` (HTTP) | `0.0.0.0/0` (Anywhere) | Accepts public client web traffic from the Internet. |
+| **Outbound** | TCP | `80` (HTTP) | `ec2-sg` (Security Group) | Forwards validated client requests to EC2 targets. |
+
+
+### 2. Compute Security Group - *Security Group Chaining*
+
+Internal compute perimeter restricting direct acess to web servers.
+
+
+| Traffic Direction | Protocol | Port Range | Source / Destination | Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| **Inbound** | TCP | `80` (HTTP) | `alb-sg` (Security Group ID) | **SG Chaining:** Strictly permits traffic coming **only** from the ALB. |
+| **Outbound** | ALL | ALL | `0.0.0.0/0` | Allows OS package updates (`yum`) and metadata fetching. |
+
+---
+
+
+## Key Architectural Principles
+
+### Perimeter Isolation via Security Group Chaining
+
+To prevent anauthorized access, compute nodes do not express Port 80 directly to the public internet:
+
+* The ingress rule for 'ec2-sg' references the logical ID of 'alb-sg' rather than an IP range.
+* Any request attempting to bypass the Application Load Balancer by calling the EC2 IP directly is dropped at the AWS hypervisor level.
+
+### High Availability & Fault Tolerance
+
+* **Multi-AZ Deployment** Deploying across 'us-east-1a' and 'us-east-1b' ensures continuos operation if an entire AWS datacenter experiences an outage.
+* **Automated Health Checks** The ALB continuosly probes '/index.html' via HTTP '200 OK' checks. Unhealthy instances are automatically deregistered.
+* **Self-Healing Infrastructure** The Auto Scaling Group enforces a mininum capacity of 2 nodes. If an instances fails, the ASG terminates it and provisions a replacement node automatically.
+
+---
+
+## Repository Structure
+
+```text
+aws-ha-web-architecture/
+├── docs/
+│   └── architecture-diagram.png
+├── scripts/
+│   └── user-data.sh
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Automated Instances Bootstrapping 
+
+Compute nodes are dynamically provisioned upon launch using 'scripts/user-data.sh':
+
+1. Updates Linux system packages ('yum update').
+2. Installs and enables the Apache Web Server ('httpd').
+3. Fetches dynamic metadata via **IMDSv2** (Instance ID and Availability Zone) to server dynamic HTML page for load-balancing verification.
+
+---
+
+## Verification & Testing Procedures
+
+* **Load Balancing Test** Refreshing the ALB DNS URL routes traffic sequentially between 'us-east-1a' and 'us-east-1b'.
+* **Failover Test** Terminating an instances in AWS Console triggers the ASG to launch a fresh replacement without service disruption.
+
