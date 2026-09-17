@@ -4,4 +4,4 @@ An enterprise-grade, fault-tolerant, adn dynamic web infrastructure deployed on 
 
 ---
 
-![AWS architecture Diagram] (/docs/
+![AWS architecture Diagram] (/docs/architecture-diagram.drawio.png)
