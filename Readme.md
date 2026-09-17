@@ -109,15 +109,15 @@ Compute nodes are dynamically provisioned upon launch using 'scripts/user-data.s
 
 Traffic distribution confirmed across multiple Availability Zones via application Load Balancer:
 
-![AZ-A Response](docs/demo-az-a.png)
+![AZ-A Response](docs/demo-az-a.PNG)
 
-![AZ-B Response](docs/demo-az-b.png)
+![AZ-B Response](docs/demo-az-b.PNG)
 
 ### 2. Target Group Health Status 
 
 All compute targets passing HTTP 200 OK health probes:
 
-![Target Group Health](docs/target-group-healthy.png)
+![Target Group Health](docs/target-group-healthy.PNG)
 
 
 
