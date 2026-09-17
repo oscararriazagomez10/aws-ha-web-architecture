@@ -110,6 +110,7 @@ Compute nodes are dynamically provisioned upon launch using 'scripts/user-data.s
 Traffic distribution confirmed across multiple Availability Zones via application Load Balancer:
 
 ![AZ-A Response](docs/demo-az-a.png)
+
 ![AZ-B Response](docs/demo-az-b.png)
 
 ### 2. Target Group Health Status 
